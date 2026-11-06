@@ -1,0 +1,673 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Painel Financeiro — demonstração</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#070b16;--card:rgba(255,255,255,.045);--card2:rgba(255,255,255,.07);--line:rgba(255,255,255,.1);
+  --txt:#e8ecf8;--mut:#8b94b3;--cy:#22d3ee;--vi:#a78bfa;--pk:#f472b6;--li:#a3e635;--am:#fbbf24;--rd:#fb7185;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:'Space Grotesk',system-ui,sans-serif;line-height:1.5}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:radial-gradient(700px 450px at 5% -10%,rgba(167,139,250,.28),transparent 60%),
+             radial-gradient(600px 450px at 100% 0%,rgba(34,211,238,.2),transparent 60%),
+             radial-gradient(600px 600px at 50% 120%,rgba(244,114,182,.16),transparent 60%)}
+a{color:var(--cy)}
+.wrap{max-width:1180px;margin:0 auto;padding:24px 20px 80px}
+header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;margin-bottom:8px}
+.logo{display:flex;align-items:center;gap:12px}
+.logo .dot{width:42px;height:42px;border-radius:12px;background:conic-gradient(from 200deg,var(--cy),var(--vi),var(--pk),var(--cy));box-shadow:0 0 30px rgba(167,139,250,.5)}
+h1{font-size:26px;margin:0;letter-spacing:-.5px}
+h1 span{background:linear-gradient(90deg,var(--cy),var(--vi),var(--pk));-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:var(--mut);font-size:13px}
+nav{position:sticky;top:0;z-index:10;backdrop-filter:blur(14px);background:rgba(7,11,22,.7);border-bottom:1px solid var(--line);margin:0 -20px 24px;padding:10px 20px;display:flex;gap:6px;overflow-x:auto}
+nav a{color:var(--txt);text-decoration:none;font-size:14px;padding:6px 14px;border-radius:999px;border:1px solid transparent;white-space:nowrap}
+nav a:hover{border-color:var(--line);background:var(--card)}
+section{margin:36px 0}
+h2{font-size:22px;margin:0 0 4px;display:flex;align-items:center;gap:10px}
+h2 .tag{font-family:var(--mono);font-size:11px;color:var(--bg);background:var(--li);padding:2px 8px;border-radius:6px}
+.lead{color:var(--mut);margin:0 0 18px;font-size:14px}
+.grid{display:grid;gap:14px}
+.g4{grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.g2{grid-template-columns:repeat(auto-fit,minmax(380px,1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;position:relative;overflow:hidden}
+.card.glow::after{content:"";position:absolute;inset:-1px;border-radius:18px;padding:1px;background:linear-gradient(135deg,var(--cy),transparent 40%,var(--pk));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.kpi .lbl{font-size:12px;color:var(--mut);text-transform:uppercase;letter-spacing:.8px}
+.kpi .val{font-family:var(--mono);font-size:24px;font-weight:600;margin:4px 0}
+.kpi .note{font-size:12px;color:var(--mut)}
+.pos{color:var(--li)}.neg{color:var(--rd)}.warn{color:var(--am)}.cy{color:var(--cy)}.vi{color:var(--vi)}
+.pill{display:inline-block;font-size:11px;font-family:var(--mono);padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--mut)}
+.pill.est{border-color:rgba(251,191,36,.4);color:var(--am)}
+.pill.fato{border-color:rgba(163,230,53,.4);color:var(--li)}
+.pill.hip{border-color:rgba(244,114,182,.45);color:var(--pk)}
+.journey{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.step{flex:1;min-width:180px;padding:14px;border-radius:14px;background:var(--card2);border:1px solid var(--line)}
+.step b{display:block;font-size:13px;margin-bottom:2px}
+.step small{color:var(--mut)}
+.bar{height:10px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--mut);margin-top:8px}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;background:var(--c);vertical-align:-1px}
+/* hoje */
+.today{border-color:rgba(34,211,238,.4)}
+.today h3{margin:0 0 6px;font-size:18px}
+.task{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px dashed var(--line);font-size:14px}
+.task:last-child{border-bottom:0}
+.task input{margin-top:4px;accent-color:var(--li);width:16px;height:16px;flex:none}
+.task.done span{text-decoration:line-through;color:var(--mut)}
+.timeline{display:grid;gap:10px}
+.money{font-family:var(--mono);font-size:13px;font-weight:600;margin-left:4px}
+.src{display:block;font-size:12px;color:var(--vi);margin-top:2px}
+.src::before{content:"↳ ";color:var(--mut)}
+.saldo-dia{margin-top:8px;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.04);font-size:13px;color:var(--mut)}
+.tl{display:grid;grid-template-columns:96px 1fr;gap:12px;padding:12px 14px;border-radius:14px;background:var(--card);border:1px solid var(--line)}
+.tl .d{font-family:var(--mono);font-size:13px;color:var(--cy)}
+.tl.past{opacity:.55}
+.tl.now{border-color:var(--li);box-shadow:0 0 0 1px var(--li) inset}
+/* simulador */
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:16px}
+.opt{cursor:pointer;text-align:left;font:inherit;color:inherit;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;transition:.15s}
+.opt:hover{background:var(--card2)}
+.opt.sel{border-color:var(--c);box-shadow:0 0 0 1px var(--c) inset,0 0 24px -6px var(--c)}
+.opt .t{font-weight:700;display:flex;align-items:center;gap:8px}
+.opt .t::before{content:"";width:10px;height:10px;border-radius:3px;background:var(--c)}
+.opt small{color:var(--mut);display:block;margin-top:4px;font-size:12px}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--mut)}
+label.f input,label.f select{font:inherit;font-family:var(--mono);font-size:14px;color:var(--txt);background:rgba(0,0,0,.35);border:1px solid var(--line);border-radius:10px;padding:8px 10px;width:100%}
+label.chk{display:flex;gap:8px;align-items:center;font-size:13px;cursor:pointer}
+label.chk input{accent-color:var(--cy);width:16px;height:16px}
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+input[type=range]{accent-color:var(--vi);width:100%}
+.pc{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.pc div{padding:12px;border-radius:12px;font-size:13px}
+.pc .pro{background:rgba(163,230,53,.07);border:1px solid rgba(163,230,53,.25)}
+.pc .con{background:rgba(251,113,133,.07);border:1px solid rgba(251,113,133,.25)}
+.pc ul{margin:6px 0 0;padding-left:18px}
+.verdict{margin-top:12px;padding:12px 14px;border-radius:12px;background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.3);font-size:14px}
+.verdict.bad{background:rgba(251,113,133,.08);border-color:rgba(251,113,133,.4)}
+.tblwrap{overflow-x:auto;border-radius:14px;border:1px solid var(--line)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:9px 10px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left}
+th{font-weight:500;color:var(--mut);font-size:11px;text-transform:uppercase;letter-spacing:.6px;background:rgba(255,255,255,.03)}
+td{font-family:var(--mono)}
+tr.best td{background:rgba(163,230,53,.06)}
+tr.selr td{background:rgba(167,139,250,.08)}
+svg text{font-family:var(--mono);font-size:10px;fill:var(--mut)}
+.goal{display:flex;flex-direction:column;gap:6px}
+.goal .h{display:flex;justify-content:space-between;gap:8px;font-size:14px}
+.goal .h b{font-family:var(--mono);color:var(--cy)}
+.tip h4{margin:0 0 6px;font-size:15px}
+.tip p{margin:0;font-size:13px;color:var(--mut)}
+.tip .n{font-family:var(--mono);font-size:11px;color:var(--vi)}
+footer{color:var(--mut);font-size:12px;margin-top:40px;border-top:1px solid var(--line);padding-top:16px}
+@media (max-width:600px){.g2{grid-template-columns:1fr}.pc{grid-template-columns:1fr}.tl{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="logo">
+    <div class="dot"></div>
+    <div>
+      <h1>Painel <span>Financeiro</span> da Ana</h1>
+      <div class="sub"><b class="warn">DADOS FICTÍCIOS · demonstração</b> · valores em R$ · educativo, não é recomendação de investimento</div>
+    </div>
+  </div>
+  <div class="pill" id="hojeLbl"></div>
+</header>
+
+<nav>
+  <a href="#hoje">Hoje</a>
+  <a href="#visao">Visão geral</a>
+  <a href="#simulador">Simulador</a>
+  <a href="#metas">Metas</a>
+  <a href="#agenda">Agenda</a>
+  <a href="#dicas">Dicas</a>
+  <a href="#premissas">Premissas</a>
+</nav>
+
+<!-- HOJE -->
+<section id="hoje">
+  <h2>O que fazer agora <span class="tag">HOJE</span></h2>
+  <p class="lead">Tarefas do dia. Marque o que já fez — fica salvo neste navegador.</p>
+  <div class="grid g2">
+    <div class="card today glow" id="hojeCard"></div>
+    <div class="card" id="proxCard"></div>
+  </div>
+</section>
+
+<!-- VISAO GERAL -->
+<section id="visao">
+  <h2>Visão geral</h2>
+  <p class="lead">Fotografia de 06/11/2026. Novembro está apertado, dezembro respira e 2027 é o ano de construir reserva.</p>
+  <div class="grid g4" id="kpis"></div>
+
+  <div class="grid g2" style="margin-top:14px">
+    <div class="card">
+      <div class="kpi"><div class="lbl">Para onde vai a renda mensal (meses normais)</div></div>
+      <div id="rendaBar" style="margin-top:12px"></div>
+    </div>
+    <div class="card">
+      <div class="kpi"><div class="lbl">Faturas dos cartões caindo mês a mês</div></div>
+      <div id="faturasChart"></div>
+    </div>
+  </div>
+
+  <div class="journey">
+    <div class="step"><b class="neg">Nov/26 · Aperto</b><small>Faturas de R$ 3,3 mil no dia 11. Parcelar o que faltar e quitar com 13º e férias.</small></div>
+    <div class="step"><b class="warn">Dez/26 · Respiro</b><small>Salário menor pelas férias, mas a 2ª parcela do 13º compensa. Três faturas no dia 11.</small></div>
+    <div class="step"><b class="cy">Jan–Mai/27 · Reserva</b><small>Faturas antigas do Cartão Loja acabam. Sobra vai para a reserva de emergência.</small></div>
+    <div class="step"><b class="pos">Ago/27+ · Investir</b><small>Com 6 meses de reserva, avaliar quitar empréstimos e investir no longo prazo.</small></div>
+  </div>
+</section>
+
+<!-- SIMULADOR -->
+<section id="simulador">
+  <h2>Simulador de decisões <span class="tag">E SE?</span></h2>
+  <p class="lead">No dia 11/11, depois de pagar o cartão PF inteiro, sobra um buraco na fatura do Cartão Loja. Escolha como cobri-lo e veja os próximos 14 meses.
+    <span class="pill hip">taxas = exemplos</span> Troque pelas taxas (CET) reais que o app mostrar.</p>
+
+  <div class="card" style="margin-bottom:14px">
+    <div class="kpi"><div class="lbl">Parâmetros gerais</div></div>
+    <div class="fields" style="margin-top:10px">
+      <label class="f">Teto do dia a dia / mês: <b id="vLbl" class="cy"></b><input type="range" id="p_v" min="600" max="2000" step="50" value="700"></label>
+      <label class="f">13º — 1ª parcela (nov)
+        <select id="p_d1"><option value="1500">~R$ 1.500 (50% do bruto)</option><option value="1350">R$ 1.350 (igual 2025)</option></select></label>
+      <label class="f">Férias líquidas (19/11) <input type="number" id="p_fer" step="0.01" value="1110.50"></label>
+      <label class="f">13º — 2ª parcela (dez) <input type="number" id="p_d2" step="0.01" value="800"></label>
+      <label class="f">Colchão mínimo em conta <input type="number" id="p_col" step="50" value="300"></label>
+      <label class="f">Cheque especial (% ao mês) <input type="number" id="p_chq" step="0.1" value="8"></label>
+      <label class="f">Capital de giro NOVO (ponte, 10/11) <input type="number" id="p_ponte" step="50" value="950"></label>
+      <label class="f">CET do capital de giro NOVO (% a.m.) <span class="pill hip">exemplo</span><input type="number" id="p_ptx" step="0.1" value="3"></label>
+    </div>
+    <div style="margin-top:12px"><label class="chk"><input type="checkbox" id="p_ant" checked> Usar sobras (13º, férias…) para quitar antes as dívidas com juros, começando pela mais cara</label></div>
+    <div class="sub" style="margin-top:8px" id="buracoTxt"></div>
+  </div>
+
+  <div class="opts" id="opts"></div>
+  <div class="card" id="optCard"></div>
+
+  <div class="grid g4" id="simKpis" style="margin-top:14px"></div>
+
+  <div class="card" style="margin-top:14px">
+    <div class="kpi"><div class="lbl">Saldo em conta / reserva no fim de cada mês — todas as opções</div></div>
+    <div id="chart"></div>
+    <div class="legend" id="chartLeg"></div>
+  </div>
+
+  <h3 style="margin:22px 0 8px">Comparação lado a lado</h3>
+  <div class="tblwrap"><table id="cmp"></table></div>
+
+  <h3 style="margin:22px 0 8px">Mês a mês da opção escolhida</h3>
+  <div class="tblwrap"><table id="tbl"></table></div>
+  <p class="sub">"Dia a dia" é pago um mês depois porque vai no cartão PJ. "Dívidas novas" = as que nascem da decisão de novembro: o parcelamento do Cartão Loja (3 parcelas depois da 1ª) e o capital de giro NOVO. Não inclui os empréstimos antigos (coluna "Empréstimos") nem a 1ª parcela do Cartão Loja (está em "Cartões", em novembro). "Pago" soma parcelas normais + quitação antecipada. Saldo negativo = faltaria dinheiro (seria preciso crédito).</p>
+</section>
+
+<!-- METAS -->
+<section id="metas">
+  <h2>Metas</h2>
+  <p class="lead">Calculadas a partir da opção selecionada no simulador.</p>
+  <div class="grid g3" id="metasGrid"></div>
+</section>
+
+<!-- AGENDA -->
+<section id="agenda">
+  <h2>Agenda de dinheiro</h2>
+  <p class="lead">Entradas, vencimentos e o que fazer em cada data.</p>
+  <div class="timeline" id="timeline"></div>
+</section>
+
+<!-- DICAS -->
+<section id="dicas">
+  <h2>Dicas para o seu momento</h2>
+  <p class="lead">Princípios práticos, adaptados à sua situação.</p>
+  <div class="grid g3" id="dicasGrid"></div>
+</section>
+
+<!-- PREMISSAS -->
+<section id="premissas">
+  <h2>Premissas e dados</h2>
+  <p class="lead">O que é fato informado, o que é estimativa e o que ainda falta.</p>
+  <div class="grid g3" id="premGrid"></div>
+</section>
+
+<footer>
+  Versão de demonstração: pessoa, bancos e valores são fictícios.
+  Conteúdo educativo; para decisões tributárias, jurídicas ou de investimento individual, procure um profissional habilitado.
+</footer>
+</div>
+
+<script>
+/* ===================== DADOS (06/11/2026) ===================== */
+const D = {
+  saldo: 750,
+  salario: 2500, salDez: 1833, salJan: 2333, salBruto: 3000,
+  dia10: 900, dia20: 600,
+  fixos: 806, fixosDia20: 126,
+  fixosLista: [['Academia',90],['Condomínio',350],['Curso de idiomas',180],['Curso online',60],['MEI',76],['Celular',50]],
+  emprestimos: [
+    {nome:'Banco Digital PJ — capital de giro ATUAL', parcela:150.00, ultimo:'2028-03'},
+    {nome:'Banco Digital PF — empréstimo 1 (não é capital de giro)', parcela:120.00, ultimo:'2027-11'},
+    {nome:'Banco Digital PF — empréstimo 2', parcela:280.00, ultimo:'2028-05'},
+  ],
+  faturas: {
+    pf: {'2026-11':1100,'2026-12':30},
+    pj: {'2026-12':150},
+    c4: {'2026-11':500,'2026-12':300,'2027-01':90,'2027-02':70},
+    magalu: {'2026-11':2200,'2026-12':900,'2027-01':800,'2027-02':520,'2027-03':90,'2027-04':50,'2027-05':50},
+  },
+  itau: 0, limiteChq: 300, pf1Nov: 120, pjPagoNov: 400, teto: 700,
+  d1: 1500, ferias: 1110.50, d2: 800, ponte: 950,
+};
+const N = 14;
+const MESES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+const dt = i => new Date(2026, 10 + i, 1);
+const KEY = i => { const d = dt(i); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); };
+const MES = i => { const d = dt(i); return MESES[d.getMonth()] + '/' + String(d.getFullYear()).slice(2); };
+const brl = v => v.toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
+const brl0 = v => v.toLocaleString('pt-BR', {style:'currency', currency:'BRL', maximumFractionDigits:0});
+const $ = id => document.getElementById(id);
+const totalEmp = D.emprestimos.reduce((s, e) => s + e.parcela, 0);
+
+/* ===================== OPÇÕES ===================== */
+const OPCOES = {
+  A: {nome:'Parcelar a fatura do Cartão Loja', cor:'#22d3ee', resumo:'Oferta: 4x de R$ 665,20 · CET 14,37% a.m. · 1ª parcela já no dia 11.',
+      campos:[['taxa','CET (% ao mês)',14.37,0.01],['n','Parcelas (a 1ª é entrada no dia 11)',4,1]],
+      pros:['Uma dívida só, formal, com parcelas fixas','Dá para quitar antes com desconto proporcional dos juros (CDC)','Não envolve outras pessoas'],
+      contras:['CET de 14,37% a.m. (412% a.a.): muito caro se levar até o fim','A 1ª parcela (R$ 665,20) é debitada na conta já no dia 11 — o saldo não cobre e a conta entra no cheque especial','Se o débito falhar, o parcelamento pode não valer e a fatura atrasa']},
+  B: {nome:'Pix no crédito (cartão PF)', cor:'#a78bfa', resumo:'Usa o limite liberado do PF para abater o Cartão Loja.',
+      campos:[['valor','Valor do Pix (até o limite liberado)',1100,0.01],['taxa','Taxa / CET do Pix (% ao mês)',7,0.1],['n','Parcelas do Pix',6,1]],
+      pros:['Pode ter CET menor que o parcelamento do Cartão Loja','Parcelas fixas na fatura do PF'],
+      contras:['Limite do PF fica ocupado: sem margem para emergência','Normalmente não cobre o buraco todo: vira duas dívidas','Depende do limite ser liberado a tempo no dia 11','Tem IOF embutido; compare pelo CET']},
+  C: {nome:'Emprestado de alguém próximo', cor:'#a3e635', resumo:'Família ou amigo empresta, sem juros ou com juros baixos.',
+      campos:[['valor','Valor emprestado',2200,0.01],['taxa','Juros combinados (% ao mês)',0,0.1],['n','Parcelas para devolver',4,1]],
+      chk:['ant','Devolver antes quando sobrar dinheiro',true],
+      pros:['Em geral sem juros: o mais barato no papel','Prazo e valor flexíveis','Sem consulta de crédito nem IOF'],
+      contras:['Risco real para a relação se atrasar','Sem proteção formal: combine por escrito (valor, datas, o que acontece se atrasar)','Não pegue mais do que o buraco','Evite se a pessoa precisar do dinheiro de volta de repente']},
+  D: {nome:'Pagar o mínimo (rotativo)', cor:'#fb7185', resumo:'Deixar o saldo rolar no cartão. Em geral a pior opção.',
+      campos:[['taxa','Taxa do rotativo (% ao mês)',14,0.1]],
+      pros:['Nenhuma vantagem além de adiar a decisão'],
+      contras:['Costuma ser o crédito mais caro do mercado','Pela regra do Banco Central, o rotativo dura uma fatura e depois o banco oferece parcelamento','Simulado aqui como 12x na taxa do rotativo (pior caso)','Pode prejudicar o score se virar atraso']},
+  E: {nome:'Empréstimo pessoal no banco', cor:'#fbbf24', resumo:'Novo empréstimo para pagar o cartão.',
+      campos:[['valor','Valor do empréstimo',2200,0.01],['taxa','Taxa / CET (% ao mês)',7,0.1],['n','Parcelas',12,1]],
+      pros:['Pode ter CET menor que o do cartão','Parcela fixa e previsível'],
+      contras:['Você já tem 3 empréstimos ativos (R$ 550/mês)','Prazo longo aumenta muito o custo total','Tem IOF e às vezes seguro embutido no CET','Risco de liberar o cartão e voltar a usá-lo']},
+};
+
+/* ===================== ESTADO ===================== */
+const LS = 'painel-demo-v1';
+const saved = JSON.parse(localStorage.getItem(LS) || '{}');
+const state = Object.assign({op:'A', g:{}, o:{}}, saved.state || {});
+for (const [k, o] of Object.entries(OPCOES)) {
+  state.o[k] = state.o[k] || {};
+  o.campos.forEach(([c,,def]) => { if (state.o[k][c] === undefined) state.o[k][c] = def; });
+  if (o.chk && state.o[k][o.chk[0]] === undefined) state.o[k][o.chk[0]] = o.chk[2];
+}
+const done = saved.done || {};
+const persist = () => localStorage.setItem(LS, JSON.stringify({state, done}));
+
+function params() {
+  return {
+    v: +$('p_v').value, d1: +$('p_d1').value, ferias: +$('p_fer').value || 0,
+    d2: +$('p_d2').value || 0, colchao: +$('p_col').value || 0, antecipar: $('p_ant').checked,
+    chq: +$('p_chq').value || 0, ponte: +$('p_ponte').value || 0, ponteTaxa: +$('p_ptx').value || 0,
+  };
+}
+
+/* ===================== MOTOR DE SIMULAÇÃO ===================== */
+function pmt(P, i, n) { if (P <= 0 || n <= 0) return 0; return i === 0 ? P / n : P * i / (1 - Math.pow(1 + i, -n)); }
+function divida(nome, P, taxaPct, n, prepay) { const i = taxaPct / 100; return {nome, saldo:P, i, pmt:pmt(P, i, n), prepay, juros:0}; }
+function accrue(d, f) { if (d.saldo <= 0.005) return; const j = d.saldo * (Math.pow(1 + d.i, f) - 1); d.saldo += j; d.juros += j; }
+
+function calcEntrada(p) {
+  const disp11 = D.saldo - (D.fixos - D.fixosDia20) - D.pf1Nov + D.dia10 - D.faturas.pf['2026-11'] + p.ponte;
+  const entrada = 0;
+  return {disp11, entrada, buraco: D.faturas.magalu['2026-11']};
+}
+
+function simular(op, p) {
+  const o = state.o[op];
+  const {disp11, entrada, buraco} = calcEntrada(p);
+  const dividas = [];
+  let entradaParc = 0;
+  const magalu = (P) => {
+    if (P <= 0.005) return;
+    const i = state.o.A.taxa / 100, n = Math.max(1, state.o.A.n);
+    const pm = pmt(P, i, n) / (1 + i);
+    entradaParc += pm;
+    if (n > 1) dividas.push(divida('Parcelamento Cartão Loja', P - pm, state.o.A.taxa, n - 1, p.antecipar));
+  };
+  if (op === 'A') magalu(buraco);
+  if (op === 'B') { const x = Math.min(o.valor, buraco, D.faturas.pf['2026-11']); dividas.push(divida('Pix no crédito', x, o.taxa, o.n, p.antecipar)); magalu(buraco - x); }
+  if (op === 'C') { const x = Math.min(o.valor, buraco); dividas.push(divida('Pessoa próxima', x, o.taxa, o.n, o.ant)); magalu(buraco - x); }
+  if (op === 'D') dividas.push(divida('Rotativo Cartão Loja', buraco, o.taxa, 12, p.antecipar));
+  if (op === 'E') { const x = Math.min(o.valor, buraco); dividas.push(divida('Empréstimo pessoal', x, o.taxa, o.n, p.antecipar)); magalu(buraco - x); }
+  if (p.ponte > 0) dividas.push(divida('Capital de giro NOVO', p.ponte, p.ponteTaxa, 12, p.antecipar));
+  const cheque11 = Math.max(0, entradaParc - disp11);
+  const custoCheque = cheque11 * (p.chq / 100 * 8 / 30 + 0.0038 + 0.000082 * 8);
+
+  let caixa = D.saldo, minCaixa = Infinity, minMes = 0;
+  const rows = [];
+  for (let m = 0; m < N; m++) {
+    const k = KEY(m);
+    let entradas;
+    if (m === 0) entradas = D.dia10 + D.dia20 + p.ferias + p.d1 + p.ponte;
+    else if (m === 1) entradas = D.salDez + D.dia10 + D.dia20 + p.d2;
+    else if (m === 2) entradas = D.salJan + D.dia10 + D.dia20;
+    else entradas = D.salario + D.dia10 + D.dia20;
+    const emprest = m === 0 ? D.pf1Nov : D.emprestimos.filter(e => k <= e.ultimo).reduce((s, e) => s + e.parcela, 0);
+    const cartoes = (D.faturas.pf[k] || 0) + (D.faturas.pj[k] || 0) + (D.faturas.c4[k] || 0) + (m === 0 ? entrada + entradaParc : (D.faturas.magalu[k] || 0));
+    const diaadia = m === 0 ? 0 : p.v;
+    const outros = m === 0 ? D.itau + custoCheque : 0;
+    caixa += entradas - D.fixos - emprest - cartoes - diaadia - outros;
+
+    let parcelas = 0;
+    if (m === 0) dividas.forEach(d => accrue(d, 19 / 30));
+    else dividas.forEach(d => {
+      if (d.saldo <= 0.005) return;
+      accrue(d, m === 1 ? 11 / 30 : 1);
+      const pg = Math.min(d.pmt, d.saldo); d.saldo -= pg; caixa -= pg; parcelas += pg;
+    });
+    let antecipado = 0;
+    dividas.filter(d => d.prepay && d.saldo > 0.005 && !(m === 0 && d.nome === 'Capital de giro NOVO')).sort((a, b) => b.i - a.i).forEach(d => {
+      const pg = Math.min(Math.max(0, caixa - p.colchao), d.saldo);
+      d.saldo -= pg; caixa -= pg; antecipado += pg;
+    });
+    if (caixa < minCaixa) { minCaixa = caixa; minMes = m; }
+    const saldoDiv = dividas.reduce((s, d) => s + Math.max(0, d.saldo), 0);
+    rows.push({m, entradas, fixos:D.fixos, emprest, cartoes, diaadia, outros, novas:parcelas + antecipado, caixa, saldoDiv});
+  }
+  const essenciais = D.fixos + totalEmp + p.v;
+  const quit = rows.find(r => r.saldoDiv < 0.01);
+  const r3 = rows.find(r => r.saldoDiv < 0.01 && r.caixa >= 3 * essenciais);
+  const r6 = rows.find(r => r.saldoDiv < 0.01 && r.caixa >= 6 * essenciais);
+  return {
+    rows, dividas, entrada, buraco, minCaixa, minMes, essenciais, entradaParc, cheque11, custoCheque,
+    juros: dividas.reduce((s, d) => s + d.juros, 0) + custoCheque,
+    quitada: quit ? quit.m : null, r3: r3 ? r3.m : null, r6: r6 ? r6.m : null,
+    final: rows[N - 1].caixa, restante: rows[N - 1].saldoDiv,
+  };
+}
+
+/* ===================== RENDER: HOJE / AGENDA ===================== */
+/* Itens com dinheiro: {txt, v (+ entra / − sai na conta), de (de onde vem ou sai)}. v ausente = não mexe na conta. */
+const AGENDA = [
+  {d:'2026-11-06', t:'Preparar a semana (sem mexer no dinheiro)', i:[
+    'Agendar condomínio, curso de idiomas e curso online para segunda (09/11).',
+    'Deixar a academia para terça (10/11).',
+    'Simular no app do Banco Digital PJ um capital de giro NOVO de R$ 950 (separado do capital de giro ATUAL de R$ 150/mês), sem contratar: CET, quitação antecipada sem multa, valor mínimo, prazo para o dinheiro cair e data da 1ª parcela.',
+    'No app do Cartão Loja, abrir o detalhamento da proposta de parcelamento sem confirmar: data e conta do débito da 1ª parcela.',
+    'Perguntar ao RH a data da 1ª parcela do 13º e quando sai o recibo de férias.',
+    {txt:'Gastos do dia a dia (teto de R$ 700 até 07/12) — anotar cada um', de:'Limite do cartão PJ; a conta vem na fatura de 11/12'}]},
+  {d:'2026-11-09', t:'Vencem as despesas fixas', i:[
+    {txt:'Pagar condomínio (R$ 350), curso de idiomas (R$ 180) e curso online (R$ 60)', v:-590, de:'Saldo de 06/11 (R$ 750)'},
+    {txt:'Pagar o empréstimo PF 1 (R$ 120, não é capital de giro)', v:-120, de:'Saldo de 06/11'}]},
+  {d:'2026-11-10', t:'Freela do dia 10 + capital de giro NOVO', i:[
+    {txt:'Entra o freela do dia 10', v:900, de:'Freela do dia 10'},
+    {txt:'Pagar a academia', v:-90, de:'Freela do dia 10'},
+    {txt:'Contratar o capital de giro NOVO (só se o CET for bem menor que 14,37% a.m. e der para quitar antes) e transferir para a conta de onde o Cartão Loja debita', v:950, de:'Capital de giro NOVO Banco Digital PJ — dívida nova, separada do capital de giro ATUAL; anotar como retirada do MEI'}]},
+  {d:'2026-11-11', t:'Vencem cartão PF e Cartão Loja', i:[
+    {txt:'Pagar a fatura do cartão PF inteira', v:-1100, de:'Freela do dia 10 (R$ 810) + sobra do saldo de 06/11 (R$ 40) + capital de giro NOVO (R$ 250)'},
+    {txt:'Confirmar o parcelamento do Cartão Loja em 4x — 1ª parcela debitada na conta', v:-665.20, de:'Capital de giro NOVO (R$ 665,20 dos R$ 700 que sobraram). Sem usar o cheque especial'},
+    'Não parcelar o cartão PF: a entrada exigida (R$ 980) deixaria só R$ 120 parcelados.']},
+  {d:'2026-11-19', t:'Pagamento das férias', i:[
+    {txt:'Entram as férias (estimativa; conferir no recibo)', v:1110.50, de:'Férias (10 dias + 1/3)'},
+    'Guardar as férias: elas vão ajudar a quitar o Cartão Loja no dia 30.']},
+  {d:'2026-11-20', t:'Freela do dia 20 (feriado: pode cair 19 ou 23)', i:[
+    {txt:'Entra o freela do dia 20', v:600, de:'Freela do dia 20'},
+    {txt:'Pagar MEI (R$ 76) e celular (R$ 50)', v:-126, de:'Freela do dia 20'},
+    {txt:'Pagar a fatura do Cartão 4 inteira', v:-500, de:'Freela do dia 20 (R$ 474) + férias (R$ 26)'}]},
+  {d:'2026-11-23', t:'Início das férias (10 dias)', i:[
+    {txt:'Gastos das férias dentro do teto de R$ 700', de:'Limite do cartão PJ; a conta vem na fatura de 11/12'}]},
+  {d:'2026-11-30', t:'13º — 1ª parcela (até)', i:[
+    {txt:'Entra a 1ª parcela do 13º (estimativa)', v:1500, de:'13º salário'},
+    {txt:'Quitar o parcelamento do Cartão Loja (3 parcelas restantes; pedir o valor exato de quitação no app)', v:-1671.02, de:'13º (R$ 1.500) + parte das férias (~R$ 171,02)'},
+    'Manter o resto na conta: ele ajuda a pagar as faturas de 11/12.']},
+  {d:'2026-12-07', t:'Salário de dezembro', i:[
+    {txt:'Entra o salário (menor por causa das férias; estimativa)', v:1833, de:'Salário CLT'}]},
+  {d:'2026-12-09', t:'Vencem as despesas fixas', i:[
+    {txt:'Pagar condomínio, cursos e academia', v:-680, de:'Salário de dezembro'},
+    {txt:'Pagar o empréstimo PF 1 (R$ 120)', v:-120, de:'Salário de dezembro'}]},
+  {d:'2026-12-10', t:'Freela do dia 10', i:[
+    {txt:'Entra o freela do dia 10', v:900, de:'Freela do dia 10'}]},
+  {d:'2026-12-11', t:'Vencem os 3 cartões', i:[
+    {txt:'Pagar inteiras: PJ (R$ 150 + até R$ 700 do dia a dia), Cartão Loja (R$ 900) e PF (R$ 30)', v:-1780, de:'Freela do dia 10 + sobra do salário + sobra de novembro'}]},
+  {d:'2026-12-20', t:'Freela do dia 20 + 2ª parcela do 13º', i:[
+    {txt:'Entram o freela do dia 20 e a 2ª parcela do 13º (estimativa)', v:1400, de:'Freela do dia 20 (R$ 600) + 13º (~R$ 800)'},
+    {txt:'Pagar MEI e celular', v:-126, de:'Freela do dia 20'},
+    {txt:'Pagar a fatura do Cartão 4', v:-300, de:'Freela do dia 20'},
+    {txt:'Pagar a parcela do capital de giro ATUAL (R$ 150) e o empréstimo PF 2 (R$ 280) — datas a confirmar', v:-430, de:'Freela do dia 20 + 2ª parcela do 13º'},
+    {txt:'Quitar o capital de giro NOVO (ponte de R$ 950 + juros; estimativa, depende do CET)', v:-978.50, de:'2ª parcela do 13º (~R$ 800) + sobra do mês (~R$ 178,50)'}]},
+  {d:'2027-01-11', t:'Reserva de emergência', i:[
+    {txt:'Primeiro aporte na reserva: Tesouro Selic ou CDB de liquidez diária com cobertura do FGC', de:'Sobra de dezembro (~R$ 667, estimativa). Separar da conta do dia a dia'}]},
+  {d:'2027-03-01', t:'Reavaliar empréstimos', i:['Com ~3 meses de reserva, pedir CET e valor de quitação dos empréstimos do Banco Digital e comparar com o rendimento da reserva.']},
+];
+(function () {
+  let s = D.saldo;
+  AGENDA.forEach(a => {
+    const temValor = a.i.some(x => typeof x === 'object' && typeof x.v === 'number');
+    a.i.forEach(x => { if (typeof x === 'object' && typeof x.v === 'number') s += x.v; });
+    a.saldoDepois = temValor || a.d === '2026-11-06' ? s : null;
+  });
+})();
+const iso = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+const brData = s => s.slice(8, 10) + '/' + s.slice(5, 7) + '/' + s.slice(0, 4);
+const HOJE = iso(new Date());
+
+function taskHtml(a) {
+  const itens = a.i.map((x, j) => {
+    const id = a.d + '-' + j, ok = !!done[id];
+    const it = typeof x === 'string' ? {txt:x} : x;
+    const valor = typeof it.v === 'number'
+      ? `<span class="money ${it.v >= 0 ? 'pos' : 'neg'}">${it.v >= 0 ? '+' : '−'}${brl(Math.abs(it.v))}</span>` : '';
+    const de = it.de ? `<span class="src">${typeof it.v === 'number' && it.v > 0 ? 'Vem de' : 'Sai de'}: ${it.de}</span>` : '';
+    return `<label class="task ${ok ? 'done' : ''}"><input type="checkbox" data-id="${id}" ${ok ? 'checked' : ''}><span>${it.txt} ${valor}${de}</span></label>`;
+  }).join('');
+  const saldo = a.saldoDepois != null
+    ? `<div class="saldo-dia">Saldo previsto em conta ao fim do dia: <b class="${a.saldoDepois < 0 ? 'neg' : 'cy'}">${brl(a.saldoDepois)}</b>${a.saldoDepois < 0 ? ' (cheque especial)' : ''}</div>` : '';
+  return itens + saldo;
+}
+function renderHoje() {
+  $('hojeLbl').textContent = 'Hoje: ' + brData(HOJE);
+  const hoje = AGENDA.filter(a => a.d === HOJE);
+  const atrasadas = AGENDA.filter(a => a.d < HOJE && a.i.some((_, j) => !done[a.d + '-' + j]));
+  const prox = AGENDA.find(a => a.d > HOJE);
+  let h = '';
+  if (hoje.length) h += hoje.map(a => `<h3>${a.t}</h3>${taskHtml(a)}`).join('');
+  else h += `<h3>Nada vence hoje</h3><p class="sub">Siga o teto do dia a dia e anote os gastos.</p>`;
+  if (atrasadas.length) h += `<h3 style="margin-top:16px" class="warn">Pendentes de dias anteriores</h3>` + atrasadas.map(a => `<div class="sub">${brData(a.d)} · ${a.t}</div>${taskHtml(a)}`).join('');
+  $('hojeCard').innerHTML = h;
+  $('proxCard').innerHTML = prox
+    ? `<div class="kpi"><div class="lbl">Próxima data importante</div><div class="val cy">${brData(prox.d)}</div><div class="note">${prox.t}</div></div><div style="margin-top:10px">${taskHtml(prox)}</div>`
+    : `<div class="kpi"><div class="lbl">Agenda concluída</div><div class="note">Peça para atualizar o painel com novos dados.</div></div>`;
+
+  $('timeline').innerHTML = AGENDA.map(a => {
+    const cls = a.d < HOJE ? 'past' : a.d === HOJE ? 'now' : '';
+    return `<div class="tl ${cls}"><div class="d">${brData(a.d)}</div><div><b>${a.t}</b>${taskHtml(a)}</div></div>`;
+  }).join('');
+  document.querySelectorAll('.task input').forEach(el => el.addEventListener('change', e => {
+    done[e.target.dataset.id] = e.target.checked; persist(); renderHoje();
+  }));
+}
+
+/* ===================== RENDER: VISÃO GERAL ===================== */
+function renderVisao() {
+  const renda = D.salario + D.dia10 + D.dia20;
+  const comp = D.fixos + totalEmp;
+  const fat11 = D.faturas.pf['2026-11'] + D.faturas.magalu['2026-11'];
+  const kp = [
+    ['Entradas mensais previstas', brl(renda), 'Salário CLT + freelas dos dias 10 e 20', 'fato'],
+    ['Saldo em conta (06/11)', brl(D.saldo), 'Única reserva hoje', 'fato'],
+    ['Faturas que vencem em 11/11', brl(fat11), 'Cartão PF + Cartão Loja', 'fato', 'neg'],
+    ['Cheque especial', brl(0), 'Zerado em 06/11 com o salário', 'fato', 'pos'],
+    ['Fixos + empréstimos / mês', brl(comp), (comp / renda * 100).toFixed(1).replace('.', ',') + '% da renda', 'fato'],
+    ['Extras até 30/11', brl(D.ferias + D.d1), 'Férias + 1ª parcela do 13º', 'est', 'pos'],
+    ['Teto do dia a dia', brl(D.teto), 'No cartão PJ, até 07/12', 'fato', 'cy'],
+    ['Dívida em empréstimos', brl(D.emprestimos[0].parcela * 16 + D.emprestimos[1].parcela * 13 + D.emprestimos[2].parcela * 18), 'Soma das parcelas que faltam (sem desconto de juros)', 'est'],
+  ];
+  $('kpis').innerHTML = kp.map(([l, v, n, t, c]) => `<div class="card kpi"><div class="lbl">${l}</div><div class="val ${c || ''}">${v}</div><div class="note">${n} <span class="pill ${t}">${t === 'fato' ? 'informado' : 'estimativa'}</span></div></div>`).join('');
+
+  const partes = [['Fixos', D.fixos, 'var(--vi)'], ['Empréstimos', totalEmp, 'var(--pk)'], ['Dia a dia (teto)', D.teto, 'var(--am)'], ['Livre p/ faturas e reserva', renda - D.fixos - totalEmp - D.teto, 'var(--li)']];
+  $('rendaBar').innerHTML = `<div class="bar" style="height:18px">${partes.map(([, v, c]) => `<i style="width:${v / renda * 100}%;background:${c}"></i>`).join('')}</div>
+    <div class="legend">${partes.map(([n, v, c]) => `<span style="--c:${c}">${n}: ${brl0(v)}</span>`).join('')}</div>
+    <div class="sub" style="margin-top:10px">Fixos: ${D.fixosLista.map(([n, v]) => n + ' ' + brl0(v)).join(' · ')}</div>`;
+
+  const ms = [0, 1, 2, 3, 4, 5, 6];
+  const vals = ms.map(m => { const k = KEY(m); return (D.faturas.pf[k] || 0) + (D.faturas.pj[k] || 0) + (D.faturas.c4[k] || 0) + (D.faturas.magalu[k] || 0) + (m === 0 ? D.pjPagoNov : 0); });
+  const max = Math.max(...vals), W = 520, H = 170, bw = W / ms.length;
+  $('faturasChart').innerHTML = `<svg viewBox="0 0 ${W} ${H + 30}" width="100%">
+    <defs><linearGradient id="gb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f472b6"/><stop offset="1" stop-color="#a78bfa"/></linearGradient></defs>
+    ${vals.map((v, i) => { const h = v / max * H; return `<rect x="${i * bw + 10}" y="${H - h + 10}" width="${bw - 20}" height="${h}" rx="6" fill="url(#gb)" opacity="${i === 0 ? 1 : .8}"/>
+      <text x="${i * bw + bw / 2}" y="${H - h + 4}" text-anchor="middle">${(v / 1000).toFixed(1).replace('.', ',')}k</text>
+      <text x="${i * bw + bw / 2}" y="${H + 26}" text-anchor="middle">${MES(i)}</text>`; }).join('')}
+  </svg><div class="sub">Faturas conhecidas em 06/11 (PJ + PF + Cartão Loja + Cartão 4). Meses seguintes ainda vão receber os gastos novos.</div>`;
+}
+
+/* ===================== RENDER: SIMULADOR ===================== */
+function renderOpts() {
+  $('opts').innerHTML = Object.entries(OPCOES).map(([k, o]) =>
+    `<button class="opt ${state.op === k ? 'sel' : ''}" style="--c:${o.cor}" data-op="${k}"><div class="t">${o.nome}</div><small>${o.resumo}</small></button>`).join('');
+  document.querySelectorAll('.opt').forEach(b => b.onclick = () => { state.op = b.dataset.op; persist(); renderOpts(); renderSim(); });
+
+  const o = OPCOES[state.op], s = state.o[state.op];
+  let campos = o.campos.map(([c, l, , step]) => `<label class="f">${l}<input type="number" step="${step}" data-c="${c}" value="${s[c]}"></label>`).join('');
+  if (o.chk) campos += `<label class="chk" style="align-self:end"><input type="checkbox" data-k="${o.chk[0]}" ${s[o.chk[0]] ? 'checked' : ''}> ${o.chk[1]}</label>`;
+  const nota = ['B', 'C', 'E'].includes(state.op) ? `<div class="sub" style="margin-top:8px">O que não for coberto aqui vira parcelamento do Cartão Loja, com a taxa e as parcelas da opção "Parcelar a fatura do Cartão Loja".</div>` : '';
+  $('optCard').style.setProperty('--c', o.cor);
+  $('optCard').innerHTML = `<div class="kpi"><div class="lbl" style="color:${o.cor}">${o.nome}</div></div>
+    <div class="fields" style="margin-top:10px">${campos}</div>${nota}
+    <div class="pc"><div class="pro"><b class="pos">Por que pode ser bom</b><ul>${o.pros.map(x => `<li>${x}</li>`).join('')}</ul></div>
+    <div class="con"><b class="neg">Por que pode ser ruim</b><ul>${o.contras.map(x => `<li>${x}</li>`).join('')}</ul></div></div>
+    <div id="verdict"></div>`;
+  $('optCard').querySelectorAll('input[data-c]').forEach(el => el.oninput = () => { s[el.dataset.c] = +el.value || 0; persist(); renderSim(); });
+  $('optCard').querySelectorAll('input[data-k]').forEach(el => el.onchange = () => { s[el.dataset.k] = el.checked; persist(); renderSim(); });
+}
+
+function renderSim() {
+  const p = params();
+  $('vLbl').textContent = brl0(p.v);
+  const all = {}; for (const k of Object.keys(OPCOES)) all[k] = simular(k, p);
+  const r = all[state.op];
+  const d11 = calcEntrada(p).disp11;
+  $('buracoTxt').innerHTML = `Até 11/11: saldo − fixos e empréstimo PF 1 de 09/11 (MEI e celular ficam para o dia 20) + capital de giro NOVO + freela do dia 10 − fatura PF = <b class="${d11 < 0 ? 'neg' : ''}">${brl(d11)}</b>. ` +
+    (d11 < 0 ? `<span class="warn">Faltam ${brl(-d11)} para pagar fixos e PF inteiros: adie uma conta fixa para o dia 20 ou cubra 1–2 dias no limite da conta.</span> ` : '') +
+    `Entrada no Cartão Loja: <b>${brl(r.entrada)}</b>. <b class="warn">Buraco a cobrir: ${brl(r.buraco)}</b>.` +
+    (r.entradaParc > 0 ? ` 1ª parcela do parcelamento debitada no dia 11: <b>${brl(r.entradaParc)}</b>.` : '') +
+    (r.cheque11 > 0 ? ` <span class="neg">A conta precisaria ficar ${brl(r.cheque11)} negativa até as férias (19/11), custo estimado de ${brl(r.custoCheque)} (já incluído nos juros).</span>` : '') +
+    (r.cheque11 > D.limiteChq ? ` <b class="neg">Passa do limite de ${brl(D.limiteChq)} em ${brl(r.cheque11 - D.limiteChq)}: o débito pode falhar. Precisa de uma ponte (pessoa próxima, Pix no crédito ou capital de giro NOVO) até 19/11.</b>` : '');
+
+  const mesTxt = m => m === null ? 'depois de dez/27' : MES(m);
+  $('simKpis').innerHTML = [
+    ['Juros totais pagos', brl(r.juros), r.juros < 1 ? 'pos' : 'warn'],
+    ['Dívidas novas zeradas em', mesTxt(r.quitada), 'cy'],
+    ['Menor saldo no fim do mês', brl(r.minCaixa) + ' · ' + MES(r.minMes), r.minCaixa < 0 ? 'neg' : 'pos'],
+    ['Reserva de 6 meses em', mesTxt(r.r6), 'vi'],
+  ].map(([l, v, c]) => `<div class="card kpi"><div class="lbl">${l}</div><div class="val ${c}" style="font-size:20px">${v}</div></div>`).join('');
+
+  const ranking = Object.entries(all).filter(([, x]) => x.minCaixa >= 0).sort((a, b) => a[1].juros - b[1].juros);
+  const best = ranking.length ? ranking[0][0] : null;
+  let v = '', bad = false;
+  if (r.minCaixa < 0) { bad = true; v = `<b>Atenção:</b> nesse caminho falta dinheiro em ${MES(r.minMes)} (${brl(r.minCaixa)}). Seria preciso mais crédito — ajuste parcelas, valores ou o teto do dia a dia.`; }
+  else if (best === state.op) v = `<b>Melhor custo entre as opções viáveis</b> com as taxas digitadas: ${brl(r.juros)} de juros. Confirme com as taxas reais do app antes de decidir.`;
+  else if (best) { const d = r.juros - all[best].juros; v = `Esse caminho custa <b>${brl(d)}</b> a mais de juros que "${OPCOES[best].nome}". ${state.op === 'C' ? 'Pode valer pela flexibilidade, se o combinado com a pessoa estiver claro.' : ''}`; bad = state.op === 'D'; }
+  if (!p.antecipar && state.op !== 'C') v += ' <br>Dica: marque "usar sobras para quitar antes" e veja quanto de juros você economiza.';
+  $('verdict').innerHTML = `<div class="verdict ${bad ? 'bad' : ''}">${v}</div>`;
+
+  renderChart(all);
+  $('cmp').innerHTML = `<tr><th>Opção</th><th>Juros totais</th><th>Dívida zerada</th><th>Menor saldo</th><th>Reserva 3 meses</th><th>Reserva 6 meses</th><th>Saldo dez/27</th></tr>` +
+    Object.entries(all).map(([k, x]) => `<tr class="${k === state.op ? 'selr' : ''} ${k === best ? 'best' : ''}">
+      <td style="color:${OPCOES[k].cor};font-family:inherit">${OPCOES[k].nome}${k === best ? ' · menor custo' : ''}</td>
+      <td>${brl(x.juros)}</td><td>${mesTxt(x.quitada)}</td><td class="${x.minCaixa < 0 ? 'neg' : ''}">${brl(x.minCaixa)}</td>
+      <td>${mesTxt(x.r3)}</td><td>${mesTxt(x.r6)}</td><td>${brl0(x.final)}</td></tr>`).join('');
+
+  $('tbl').innerHTML = `<tr><th>Mês</th><th>Entradas</th><th>Fixos</th><th>Empréstimos</th><th>Cartões</th><th>Dia a dia</th><th>Outros</th><th>Pago das dívidas novas</th><th>Saldo / reserva</th><th>Ainda devo das dívidas novas</th></tr>` +
+    r.rows.map(x => `<tr><td>${MES(x.m)}</td><td class="pos">${brl(x.entradas)}</td><td>${brl(x.fixos)}</td><td>${brl(x.emprest)}</td><td>${brl(x.cartoes)}</td>
+      <td>${brl(x.diaadia)}</td><td>${x.outros ? brl(x.outros) : '—'}</td><td>${x.novas ? brl(x.novas) : '—'}</td>
+      <td class="${x.caixa < 0 ? 'neg' : 'cy'}">${brl(x.caixa)}</td><td>${x.saldoDiv > 0.01 ? brl(x.saldoDiv) : '—'}</td></tr>`).join('');
+
+  renderMetas(r, p);
+}
+
+function renderChart(all) {
+  const W = 900, H = 280, pl = 64, pr = 16, pt = 14, pb = 28;
+  const vals = Object.values(all).flatMap(x => x.rows.map(r => r.caixa));
+  const mn = Math.min(0, ...vals), mx = Math.max(...vals);
+  const X = i => pl + i * (W - pl - pr) / (N - 1);
+  const Y = v => pt + (mx - v) / (mx - mn || 1) * (H - pt - pb);
+  let g = '';
+  for (let t = 0; t <= 4; t++) { const v = mn + (mx - mn) * t / 4; g += `<line x1="${pl}" x2="${W - pr}" y1="${Y(v)}" y2="${Y(v)}" stroke="rgba(255,255,255,.06)"/><text x="${pl - 8}" y="${Y(v) + 3}" text-anchor="end">${(v / 1000).toFixed(0)}k</text>`; }
+  g += `<line x1="${pl}" x2="${W - pr}" y1="${Y(0)}" y2="${Y(0)}" stroke="rgba(251,113,133,.5)" stroke-dasharray="4 4"/>`;
+  for (let i = 0; i < N; i++) g += `<text x="${X(i)}" y="${H - 8}" text-anchor="middle">${MES(i)}</text>`;
+  const p = params(), meta6 = 6 * (D.fixos + totalEmp + p.v);
+  if (meta6 <= mx) g += `<line x1="${pl}" x2="${W - pr}" y1="${Y(meta6)}" y2="${Y(meta6)}" stroke="rgba(163,230,53,.5)" stroke-dasharray="2 5"/><text x="${W - pr}" y="${Y(meta6) - 5}" text-anchor="end" style="fill:#a3e635">meta 6 meses</text>`;
+  const order = Object.keys(all).filter(k => k !== state.op).concat(state.op);
+  for (const k of order) {
+    const pts = all[k].rows.map((r, i) => `${X(i)},${Y(r.caixa)}`).join(' ');
+    const sel = k === state.op;
+    g += `<polyline points="${pts}" fill="none" stroke="${OPCOES[k].cor}" stroke-width="${sel ? 3.5 : 1.5}" opacity="${sel ? 1 : .45}" stroke-linejoin="round"/>`;
+    if (sel) all[k].rows.forEach((r, i) => g += `<circle cx="${X(i)}" cy="${Y(r.caixa)}" r="3.5" fill="${OPCOES[k].cor}"/>`);
+  }
+  $('chart').innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="100%">${g}</svg>`;
+  $('chartLeg').innerHTML = Object.entries(OPCOES).map(([k, o]) => `<span style="--c:${o.cor}">${o.nome}</span>`).join('');
+}
+
+/* ===================== RENDER: METAS ===================== */
+function renderMetas(r, p) {
+  const mesTxt = m => m === null ? 'depois de dez/27' : MES(m);
+  const ultimo = r.rows[N - 1].caixa;
+  const metas = [
+    ['Sair do cheque especial', 'feito em 06/11', 1, 'Os R$ 180 do cheque especial foram cobertos com o salário. Evite voltar a usar o limite da conta.'],
+    ['Zerar a dívida nova do Cartão Loja', mesTxt(r.quitada), r.quitada !== null ? 1 : 0.3, 'Usar 13º e férias para quitar antes e pagar menos juros.'],
+    ['Reserva de 3 meses · ' + brl0(3 * r.essenciais), mesTxt(r.r3), Math.min(1, ultimo / (3 * r.essenciais)), 'Base: fixos + empréstimos + dia a dia = ' + brl0(r.essenciais) + '/mês.'],
+    ['Reserva de 6 meses · ' + brl0(6 * r.essenciais), mesTxt(r.r6), Math.min(1, ultimo / (6 * r.essenciais)), 'Tesouro Selic ou CDB de liquidez diária com FGC.'],
+    ['Fim do empréstimo PF 1', 'nov/27 (estimado)', 0.6, 'Libera R$ 120/mês. Mês exato a confirmar no contrato.'],
+    ['Começar a investir no longo prazo', r.r6 !== null && r.r6 + 1 < N ? MES(r.r6 + 1) : 'após a reserva', r.r6 !== null ? 1 : 0.2, 'Antes, comparar com quitar os empréstimos do Banco Digital (precisa do CET).'],
+  ];
+  $('metasGrid').innerHTML = metas.map(([t, q, pr, n]) => `<div class="card goal"><div class="h"><span>${t}</span><b>${q}</b></div>
+    <div class="bar"><i style="width:${Math.max(0, pr) * 100}%;background:linear-gradient(90deg,var(--cy),var(--li))"></i></div><div class="sub">${n}</div></div>`).join('');
+}
+
+/* ===================== DICAS / PREMISSAS ===================== */
+const DICAS = [
+  ['Nunca deixe a fatura no rotativo', 'Se não der para pagar tudo, negocie um parcelamento formal comparando o CET. O rotativo costuma ser o crédito mais caro do Brasil.'],
+  ['Compare o total, não a parcela', 'Parcela que "cabe" pode esconder um custo total alto. Olhe o CET e o total pago (parcela × nº de parcelas).'],
+  ['Férias não são dinheiro extra', 'O salário dos dias de férias é adiantado: o salário seguinte vem menor. Só o 1/3 é bônus de verdade.'],
+  ['O 13º tem destino', 'Primeiro, quitar a dívida mais cara. Quitar antes dá direito a desconto proporcional dos juros (CDC).'],
+  ['Limite não é renda', 'O limite do cartão PJ é crédito, não dinheiro seu. Use só dentro do teto de R$ 700 e pague a fatura inteira.'],
+  ['Separe PF e PJ no caderno', 'Gastos pessoais no cartão da empresa são retirada sua. Anote à parte para saber quanto o MEI realmente rende.'],
+  ['Reserva primeiro, risco depois', 'Antes de ações, cripto ou fundos arriscados: reserva de 6 meses em algo seguro e com resgate rápido.'],
+  ['Lazer faz parte do plano', 'Sair com amigos é legítimo. Defina o valor antes de sair e anote depois. Controle não é privação.'],
+  ['Revisão mensal de 15 minutos', 'Todo dia 12, depois das faturas: confira saldo, gastos do mês e atualize o painel.'],
+];
+const PREM = [
+  ['Dados fictícios (demonstração)', 'fato', ['Ana é CLT: salário líquido R$ 2.500 (bruto R$ 3.000); freelas pelo MEI: dia 10 R$ 900, dia 20 R$ 600','Saldo R$ 750 em 06/11, com o cheque especial já zerado','Pagos em nov: empréstimo PF 2, capital de giro ATUAL (R$ 150) e fatura PJ (R$ 400)','Cartões PJ, PF e Cartão Loja vencem dia 11; Cartão 4 vence dia 20 (nov R$ 500, dez R$ 300, jan R$ 90, fev R$ 70)','Férias de 10 dias a partir de 23/11, pagas em 19/11','Teto do dia a dia: R$ 700/mês, no cartão PJ']],
+  ['Estimativas', 'est', ['Férias líquidas ~R$ 1.110,50 (proporção líquido/bruto de 83%)','13º: 1ª parcela ~R$ 1.500; 2ª ~R$ 800 (conservador)','Salário dez ~R$ 1.833 e jan ~R$ 2.333 (desconto dos dias de férias)','Último mês de cada empréstimo, calculado pela parcela atual','Gastos do dia a dia pagos no mês seguinte (cartão PJ)']],
+  ['Ainda falta / hipóteses', 'hip', ['CET real do parcelamento do Cartão Loja, do Pix no crédito e dos empréstimos','Datas de vencimento das despesas fixas','Recibo de férias e data do 13º','Novas compras no cartão não estão na projeção','13º e férias de 2027 não incluídos (seriam bônus)']],
+];
+function renderEstaticos() {
+  $('dicasGrid').innerHTML = DICAS.map(([t, p], i) => `<div class="card tip"><div class="n">#${String(i + 1).padStart(2, '0')}</div><h4>${t}</h4><p>${p}</p></div>`).join('');
+  $('premGrid').innerHTML = PREM.map(([t, c, l]) => `<div class="card"><span class="pill ${c}">${t}</span><ul style="margin:10px 0 0;padding-left:18px;font-size:13px;color:var(--mut)">${l.map(x => `<li>${x}</li>`).join('')}</ul></div>`).join('');
+}
+
+/* ===================== INIT ===================== */
+const G = ['p_v', 'p_d1', 'p_fer', 'p_d2', 'p_col', 'p_ant', 'p_chq', 'p_ponte', 'p_ptx'];
+G.forEach(id => {
+  const el = $(id);
+  if (state.g[id] !== undefined) { if (el.type === 'checkbox') el.checked = state.g[id]; else el.value = state.g[id]; }
+  el.addEventListener('input', () => { state.g[id] = el.type === 'checkbox' ? el.checked : el.value; persist(); renderSim(); });
+});
+renderHoje(); renderVisao(); renderEstaticos(); renderOpts(); renderSim();
+</script>
+</body>
+</html>
